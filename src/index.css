@@ -1,0 +1,219 @@
+@import "tailwindcss";
+
+/* ========================================================= */
+/* A4 PRINT & PDF GENERATION STYLES                          */
+/* ========================================================= */
+
+@media print {
+  @page {
+    size: 210mm 297mm; /* A4 Portrait: 21 x 29.7 cm (Margin: Atas 1.5cm, Kanan 2cm, Bawah 1.5cm, Kiri 2cm) */
+    margin: 1.5cm 2cm 1.5cm 2cm;
+  }
+
+  /* Reset default html & body settings for clean paper layout */
+  html, body {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    font-family: Arial, Helvetica, sans-serif !important;
+    font-size: 11pt !important;
+    line-height: 1.35 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    min-width: 100% !important;
+    box-shadow: none !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Reset layout containers (remove sidebar offset and main paddings) */
+  #root,
+  .min-h-screen,
+  .flex-1,
+  main {
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    background: transparent !important;
+  }
+
+  /* Reset the 16rem (pl-64) sidebar padding on desktop */
+  .lg\:pl-64 {
+    padding-left: 0 !important;
+  }
+
+  /* Hide all UI elements not meant for physical paper / PDF */
+  .no-print,
+  aside,
+  header,
+  nav,
+  button,
+  .toast-container,
+  input[type="text"],
+  input[type="search"],
+  select,
+  .pagination-nav {
+    display: none !important;
+  }
+
+  /* Ensure printable area takes full width and has no screen borders/shadows */
+  .printable-sheet,
+  .printable-card,
+  .printable-content {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    background: #ffffff !important;
+  }
+
+  /* Critical for tables: prevent horizontal scroll overflow from clipping printed columns */
+  .overflow-x-auto,
+  .overflow-hidden,
+  .overflow-y-auto {
+    overflow: visible !important;
+    max-height: none !important;
+  }
+
+  /* When printing from a modal dialog (e.g. ProfilSiswaModal) */
+  .fixed.inset-0 {
+    position: static !important;
+    background: transparent !important;
+    backdrop-filter: none !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    height: auto !important;
+    max-height: none !important;
+    z-index: auto !important;
+  }
+  .fixed.inset-0 > div {
+    max-height: none !important;
+    box-shadow: none !important;
+    border: none !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    border-radius: 0 !important;
+    background: #ffffff !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* Table styling for sharp print output */
+  table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    page-break-inside: auto;
+  }
+
+  thead {
+    display: table-header-group !important;
+  }
+
+  tr {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  th, td {
+    border: 1px solid #1e293b !important;
+  }
+
+  /* Avoid breaking signatures across pages */
+  .signature-block,
+  .avoid-break {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  /* Ensure badges and colored headers retain high-contrast ink */
+  .bg-slate-100 {
+    background-color: #f1f5f9 !important;
+  }
+  .bg-slate-200 {
+    background-color: #e2e8f0 !important;
+  }
+  .bg-blue-50 {
+    background-color: #eff6ff !important;
+  }
+  .bg-blue-100 {
+    background-color: #dbeafe !important;
+  }
+  .bg-amber-50 {
+    background-color: #fffbeb !important;
+  }
+  .bg-amber-100 {
+    background-color: #fef3c7 !important;
+  }
+  .bg-emerald-50 {
+    background-color: #ecfdf5 !important;
+  }
+  .bg-emerald-100 {
+    background-color: #d1fae5 !important;
+  }
+}
+
+/* Screen preview styling for paper simulations */
+.paper-preview-f4-landscape {
+  max-width: 330mm;
+  min-height: 210mm;
+}
+
+.paper-preview-f4-portrait {
+  max-width: 210mm;
+  min-height: 330mm;
+}
+
+.paper-preview-landscape {
+  max-width: 297mm;
+  min-height: 210mm;
+}
+
+.paper-preview-portrait {
+  max-width: 210mm;
+  min-height: 297mm;
+}
+
+/* Print page break helpers */
+@media print {
+  .page-break {
+    page-break-after: always !important;
+    break-after: page !important;
+  }
+  .avoid-page-break {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  /* Specific A4 Portrait SKL layout: exactly 1 page per student */
+  .skl-page {
+    font-family: Arial, Helvetica, sans-serif !important;
+    font-size: 11pt !important;
+    page-break-after: always !important;
+    break-after: page !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    box-sizing: border-box !important;
+    width: 100% !important;
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    background: #ffffff !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  .skl-page img {
+    object-fit: contain !important;
+    height: auto !important;
+    max-width: 100% !important;
+  }
+  .skl-page:last-child {
+    page-break-after: auto !important;
+    break-after: auto !important;
+  }
+}
+

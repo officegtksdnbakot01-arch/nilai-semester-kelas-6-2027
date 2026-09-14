@@ -1,0 +1,6 @@
+{
+  "name": "Nilai Rapor & Ujian Sekolah SDN BABELAN KOTA 01",
+  "description": "Aplikasi Nilai Rapor & Ujian Sekolah SDN Babelan Kota 01 Tahun Ajaran 2026/2027 untuk Guru Kelas dan Admin.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
