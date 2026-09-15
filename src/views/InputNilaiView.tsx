@@ -3,7 +3,6 @@ import { useAuth } from '../context/AuthContext';
 import { useApp } from '../context/AppContext';
 import { SemesterCode, Subject, GradeImportPreview } from '../types';
 import { ExcelService } from '../services/excel';
-import { PrintService } from '../services/printService';
 import {
   Save,
   CheckCircle2,
@@ -21,7 +20,6 @@ import {
   Search,
   Check,
   FolderDown,
-  Printer,
 } from 'lucide-react';
 
 interface SemesterOption {
@@ -567,13 +565,6 @@ export const InputNilaiView: React.FC = () => {
 
   const isAuthorized = canAccessRombel(selectedRombel);
 
-  const handlePrint = () => {
-    PrintService.triggerPrint({
-      orientation: 'landscape',
-      title: `Leger_Nilai_${selectedRombel}_${currentSemesterMeta.shortLabel.replace(/[^a-zA-Z0-9]/g, '_')}`,
-    });
-  };
-
   return (
     <div className="space-y-5">
       {/* Top Header & Actions */}
@@ -581,10 +572,10 @@ export const InputNilaiView: React.FC = () => {
         <div>
           <div className="flex items-center gap-2 text-xs font-bold text-blue-700 uppercase tracking-wider mb-1">
             <Award className="w-4 h-4" />
-            <span>Lembar Input Nilai Rapor (Format Gabungan Mata Pelajaran)</span>
+            <span>Input Nilai Rapor</span>
           </div>
           <h1 className="text-xl sm:text-2xl font-black text-slate-800 tracking-tight">
-            Lembar Input Nilai Rapor
+            Input Nilai Rapor
           </h1>
           <p className="text-xs text-slate-500 mt-0.5">
             Seluruh mata pelajaran digabungkan dalam satu tabel terpadu, dikelompokkan masing-masing per semester dari Semester 1 - Kelas 4 dan seterusnya.
@@ -630,17 +621,6 @@ export const InputNilaiView: React.FC = () => {
           >
             <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600" />
             <span>Ekspor Leger</span>
-          </button>
-
-          {/* Cetak / Unduh PDF (A4 Landscape) */}
-          <button
-            type="button"
-            onClick={handlePrint}
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-800 text-xs font-bold transition-all border border-blue-200 cursor-pointer"
-            title="Cetak format A4 Landscape atau Simpan sebagai PDF"
-          >
-            <Printer className="w-3.5 h-3.5 text-blue-600" />
-            <span>Cetak / Unduh PDF (A4 Landscape)</span>
           </button>
 
           {/* Impor Nilai Excel */}

@@ -20,11 +20,7 @@ import {
   Settings2,
   FileCheck,
   Check,
-  Building2,
   BadgeCheck,
-  Upload,
-  Trash2,
-  Image,
   Loader2,
 } from 'lucide-react';
 
@@ -75,54 +71,6 @@ export const CetakLaporanView: React.FC = () => {
   const [sklTanggalRapat, setSklTanggalRapat] = useState<string>('09 Juni 2027');
   const [sklKota, setSklKota] = useState<string>('Babelan');
   const [sklPrintMode, setSklPrintMode] = useState<'single' | 'batch'>('single');
-
-  // Upload Kop Sekolah State & Handlers
-  const kopFileInputRef = useRef<HTMLInputElement | null>(null);
-  const [isDraggingKop, setIsDraggingKop] = useState<boolean>(false);
-
-  const processKopFile = (file: File) => {
-    if (!file.type.startsWith('image/')) {
-      addToast('error', 'Mohon pilih file gambar yang valid (PNG, JPG, JPEG, WEBP).');
-      return;
-    }
-    if (file.size > 3 * 1024 * 1024) {
-      addToast('error', 'Ukuran gambar maksimal 3MB. Silakan gunakan file gambar yang lebih kecil.');
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const dataUrl = event.target?.result as string;
-      if (dataUrl) {
-        updateSettings({
-          ...settings,
-          kop_skl_url: dataUrl,
-        });
-        addToast('success', 'Kop surat sekolah berhasil diupload dan diterapkan ke Lembar Kerja SKL.');
-      }
-    };
-    reader.onerror = () => {
-      addToast('error', 'Gagal membaca file gambar.');
-    };
-    reader.readAsDataURL(file);
-  };
-
-  const handleKopFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      processKopFile(file);
-    }
-    // reset input so same file can be selected again if needed
-    e.target.value = '';
-  };
-
-  const handleRemoveKop = () => {
-    updateSettings({
-      ...settings,
-      kop_skl_url: undefined,
-    });
-    addToast('info', 'Kop sekolah telah dihapus. Menggunakan format kop teks dinas standar.');
-  };
 
   // PDF Direct Download to Storage State
   const [isDownloadingPdf, setIsDownloadingPdf] = useState<boolean>(false);
@@ -519,9 +467,7 @@ export const CetakLaporanView: React.FC = () => {
               title="Buka dialog cetak atau Simpan sebagai PDF"
             >
               <Printer className="w-4 h-4" />
-              <span>
-                Cetak / Unduh PDF ({paperSize} {paperOrientation === 'landscape' ? 'Landscape' : 'Portrait'})
-              </span>
+              <span>Cetak / Unduh PDF</span>
             </button>
           </div>
         </div>
@@ -538,7 +484,7 @@ export const CetakLaporanView: React.FC = () => {
             }`}
           >
             <Award className="w-3.5 h-3.5" />
-            <span>1. Rekapitulasi Nilai Ijazah (F4 Landscape)</span>
+            <span>Rekapitulasi Nilai Ijazah</span>
           </button>
 
           <button
@@ -551,7 +497,7 @@ export const CetakLaporanView: React.FC = () => {
             }`}
           >
             <GraduationCap className="w-3.5 h-3.5" />
-            <span>2. Cetak Surat Keterangan Lulus (SKL)</span>
+            <span>Cetak SKL</span>
           </button>
 
           <button
@@ -564,7 +510,7 @@ export const CetakLaporanView: React.FC = () => {
             }`}
           >
             <FileText className="w-3.5 h-3.5" />
-            <span>3. Buku Leger Rombel</span>
+            <span>Leger Rombel</span>
           </button>
 
           <button
@@ -577,7 +523,7 @@ export const CetakLaporanView: React.FC = () => {
             }`}
           >
             <FileCheck className="w-3.5 h-3.5" />
-            <span>4. Rapor Peserta Didik</span>
+            <span>Rapor Peserta Didik</span>
           </button>
         </div>
 
@@ -1082,7 +1028,7 @@ export const CetakLaporanView: React.FC = () => {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2">
                 <GraduationCap className="w-5 h-5 text-blue-600" />
-                <h3 className="text-sm font-bold text-slate-800">Pengaturan Cetak Surat Keterangan Lulus (SKL)</h3>
+                <h3 className="text-sm font-bold text-slate-800">Pengaturan SKL</h3>
               </div>
 
               <div className="flex flex-wrap items-center gap-2">
@@ -1146,110 +1092,6 @@ export const CetakLaporanView: React.FC = () => {
                   </button>
                 </div>
               </div>
-            </div>
-
-            {/* Upload Kop Sekolah ke Lembar Kerja SKL */}
-            <div className="border border-slate-200 rounded-xl p-4 bg-slate-50/70 space-y-3">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                <div className="flex items-center gap-2">
-                  <Building2 className="w-4 h-4 text-blue-600 shrink-0" />
-                  <div>
-                    <h4 className="text-xs font-bold text-slate-800">
-                      Upload Kop Sekolah ke Lembar Kerja SKL
-                    </h4>
-                    <p className="text-[11px] text-slate-500">
-                      Upload file gambar banner Kop Surat resmi sekolah (PNG/JPG/WEBP). Gambar akan otomatis terpasang pada bagian atas seluruh Lembar Kerja SKL ukuran F4 Portrait (210×330 mm).
-                    </p>
-                  </div>
-                </div>
-
-                {settings.kop_skl_url && (
-                  <div className="flex items-center gap-2 shrink-0">
-                    <button
-                      type="button"
-                      onClick={() => kopFileInputRef.current?.click()}
-                      className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold rounded-lg bg-white border border-slate-300 text-slate-700 hover:bg-slate-100 cursor-pointer shadow-2xs"
-                    >
-                      <Upload className="w-3.5 h-3.5 text-blue-600" />
-                      <span>Ganti Kop</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={handleRemoveKop}
-                      className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold rounded-lg bg-red-50 border border-red-200 text-red-700 hover:bg-red-100 cursor-pointer shadow-2xs"
-                      title="Hapus gambar kop dan kembali ke format kop teks standar"
-                    >
-                      <Trash2 className="w-3.5 h-3.5 text-red-600" />
-                      <span>Hapus Kop</span>
-                    </button>
-                  </div>
-                )}
-              </div>
-
-              {/* Hidden file input for Kop upload */}
-              <input
-                type="file"
-                ref={kopFileInputRef}
-                onChange={handleKopFileChange}
-                accept="image/png,image/jpeg,image/jpg,image/webp"
-                className="hidden"
-              />
-
-              {settings.kop_skl_url ? (
-                /* Live Preview of Uploaded Kop */
-                <div className="relative border-2 border-dashed border-emerald-300 bg-emerald-50/40 rounded-xl p-3 flex flex-col items-center justify-center">
-                  <div className="w-full flex items-center justify-between mb-2 pb-1.5 border-b border-emerald-200 text-[11px]">
-                    <span className="font-bold text-emerald-800 flex items-center gap-1.5">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                      Kop Resmi Sekolah Aktif pada Lembar Kerja SKL
-                    </span>
-                    <span className="text-emerald-700 font-medium">
-                      Siap Cetak F4 Portrait (210×330 mm)
-                    </span>
-                  </div>
-                  <div className="w-full max-h-28 overflow-hidden rounded-lg bg-white p-2 border border-emerald-200/80 shadow-2xs flex items-center justify-center">
-                    <img
-                      src={settings.kop_skl_url}
-                      alt="Preview Kop Surat Sekolah"
-                      className="w-full max-h-24 object-contain"
-                    />
-                  </div>
-                </div>
-              ) : (
-                /* Upload Dropzone */
-                <div
-                  onDragOver={(e) => {
-                    e.preventDefault();
-                    setIsDraggingKop(true);
-                  }}
-                  onDragLeave={() => setIsDraggingKop(false)}
-                  onDrop={(e) => {
-                    e.preventDefault();
-                    setIsDraggingKop(false);
-                    const file = e.dataTransfer.files?.[0];
-                    if (file) processKopFile(file);
-                  }}
-                  onClick={() => kopFileInputRef.current?.click()}
-                  className={`border-2 border-dashed rounded-xl p-4 sm:p-5 flex flex-col items-center justify-center text-center cursor-pointer transition-all ${
-                    isDraggingKop
-                      ? 'border-blue-500 bg-blue-50/80 scale-[1.01]'
-                      : 'border-slate-300 bg-white hover:border-blue-400 hover:bg-slate-50/60'
-                  }`}
-                >
-                  <div className="w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center mb-2 shadow-2xs">
-                    <Upload className="w-5 h-5" />
-                  </div>
-                  <p className="text-xs font-bold text-slate-800">
-                    Klik untuk pilih gambar atau tarik (drag & drop) file Kop Sekolah ke sini
-                  </p>
-                  <p className="text-[11px] text-slate-500 mt-1">
-                    Format: PNG, JPG, JPEG, WEBP (Maks. 3MB). Rekomendasi lebar proporsional 210mm (~2000-2400px horizontal).
-                  </p>
-                  <span className="mt-2 inline-flex items-center gap-1 text-[10px] font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md border border-blue-200">
-                    Kop akan otomatis muncul pada semua lembar SKL (preview & unduh PDF masal)
-                  </span>
-                </div>
-              )}
             </div>
 
             {/* Editable SKL Metadata */}
@@ -1321,8 +1163,6 @@ export const CetakLaporanView: React.FC = () => {
                   kota={sklKota}
                   bobotRapor={bobotRapor}
                   bobotUS={bobotUS}
-                  onUploadKopClick={() => kopFileInputRef.current?.click()}
-                  onRemoveKop={handleRemoveKop}
                 />
               ) : (
                 <div className="text-center py-12 text-slate-400">Pilih siswa untuk menampilkan SKL.</div>
@@ -1373,8 +1213,6 @@ export const CetakLaporanView: React.FC = () => {
                     kota={sklKota}
                     bobotRapor={bobotRapor}
                     bobotUS={bobotUS}
-                    onUploadKopClick={() => kopFileInputRef.current?.click()}
-                    onRemoveKop={handleRemoveKop}
                   />
                 </div>
               ))}
@@ -1715,8 +1553,6 @@ interface SKLDocumentProps {
   kota: string;
   bobotRapor: number;
   bobotUS: number;
-  onUploadKopClick?: () => void;
-  onRemoveKop?: () => void;
 }
 
 const SKLDocument: React.FC<SKLDocumentProps> = ({
@@ -1730,8 +1566,6 @@ const SKLDocument: React.FC<SKLDocumentProps> = ({
   kota,
   bobotRapor,
   bobotUS,
-  onUploadKopClick,
-  onRemoveKop,
 }) => {
   return (
     <div
@@ -1741,32 +1575,6 @@ const SKLDocument: React.FC<SKLDocumentProps> = ({
       {/* Kop Resmi Sekolah: Sama Rata Kiri Kanan */}
       {settings.kop_skl_url ? (
         <div className="relative group text-center pb-1 mb-2 border-b-2 border-black w-full">
-          {/* Quick actions on screen only */}
-          {onUploadKopClick && (
-            <div className="no-print absolute top-0 right-0 flex items-center gap-1.5 opacity-90 group-hover:opacity-100 transition-all bg-white/95 backdrop-blur-xs px-2 py-1 rounded-md border border-slate-200 shadow-2xs font-sans text-[11px]">
-              <span className="text-emerald-700 font-bold flex items-center gap-1">
-                <CheckCircle2 className="w-3 h-3 text-emerald-600" /> Kop Gambar Aktif
-              </span>
-              <button
-                type="button"
-                onClick={onUploadKopClick}
-                className="px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 hover:bg-blue-100 font-semibold cursor-pointer"
-                title="Ganti gambar Kop Sekolah"
-              >
-                Ganti
-              </button>
-              {onRemoveKop && (
-                <button
-                  type="button"
-                  onClick={onRemoveKop}
-                  className="px-1.5 py-0.5 rounded bg-red-50 text-red-700 hover:bg-red-100 font-semibold cursor-pointer"
-                  title="Hapus gambar kop dan gunakan teks dinas standar"
-                >
-                  Hapus
-                </button>
-              )}
-            </div>
-          )}
           <img
             src={settings.kop_skl_url}
             alt="Kop Surat Resmi Sekolah"
@@ -1777,21 +1585,6 @@ const SKLDocument: React.FC<SKLDocumentProps> = ({
         </div>
       ) : (
         <div className="relative group flex items-center justify-between gap-3 border-b-4 border-double border-black pb-2 text-center w-full">
-          {/* Quick upload trigger on screen only */}
-          {onUploadKopClick && (
-            <div className="no-print absolute -top-1 right-0 font-sans">
-              <button
-                type="button"
-                onClick={onUploadKopClick}
-                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-blue-50 hover:bg-blue-100 text-blue-700 text-[11px] font-bold border border-blue-200 shadow-2xs cursor-pointer"
-                title="Upload gambar Kop Surat Sekolah ke Lembar Kerja SKL"
-              >
-                <Upload className="w-3 h-3" />
-                <span>Upload Kop</span>
-              </button>
-            </div>
-          )}
-
           {/* Sisi Kiri: Logo Pemda / Sekolah */}
           <div className="w-20 h-20 shrink-0 flex items-center justify-center">
             <img

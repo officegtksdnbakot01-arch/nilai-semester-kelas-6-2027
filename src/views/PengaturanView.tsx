@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useApp } from '../context/AppContext';
 import { SchoolSettings, SemesterCode, RombelInfo, User } from '../types';
@@ -20,6 +20,7 @@ import {
   Key,
   UserCheck,
   Shield,
+  Trash2,
 } from 'lucide-react';
 import { StorageService } from '../services/storage';
 
@@ -39,6 +40,27 @@ export const PengaturanView: React.FC = () => {
   const [formData, setFormData] = useState<SchoolSettings>({ ...settings });
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [backupJson, setBackupJson] = useState<string | null>(null);
+  const kopInputRef = useRef<HTMLInputElement | null>(null);
+
+  const handleKopUpload = (file: File) => {
+    if (!file.type.startsWith('image/')) {
+      addToast('error', 'Mohon pilih file gambar yang valid (PNG, JPG, WEBP).');
+      return;
+    }
+    if (file.size > 3 * 1024 * 1024) {
+      addToast('error', 'Ukuran gambar maksimal 3MB.');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const dataUrl = e.target?.result as string;
+      if (dataUrl) {
+        setFormData((prev) => ({ ...prev, kop_skl_url: dataUrl }));
+        addToast('success', 'Kop surat sekolah berhasil dimuat. Klik Simpan Perubahan untuk menyimpan.');
+      }
+    };
+    reader.readAsDataURL(file);
+  };
 
   // Edit Guru Kelas State
   const [editingRombel, setEditingRombel] = useState<RombelInfo | null>(null);
@@ -300,6 +322,72 @@ export const PengaturanView: React.FC = () => {
                   placeholder="https://i.ibb.co.com/rRhHc2PD/logo-bakot-01.png"
                   className="w-full text-xs font-mono px-3 py-2 border border-slate-300 rounded-md outline-hidden focus:border-blue-500 bg-white disabled:bg-slate-100"
                 />
+              </div>
+            </div>
+
+            <div className="sm:col-span-3">
+              <label className="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1">
+                Kop Surat Resmi Sekolah (Untuk SKL & Dokumen Kelulusan)
+              </label>
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="file"
+                    ref={kopInputRef}
+                    accept="image/png,image/jpeg,image/jpg,image/webp"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) handleKopUpload(file);
+                      e.target.value = '';
+                    }}
+                  />
+                  <input
+                    type="text"
+                    disabled={!isAdmin}
+                    value={formData.kop_skl_url || ''}
+                    onChange={(e) => setFormData({ ...formData, kop_skl_url: e.target.value })}
+                    placeholder="URL gambar Kop atau klik tombol Upload Kop"
+                    className="w-full text-xs font-mono px-3 py-2 border border-slate-300 rounded-md outline-hidden focus:border-blue-500 bg-white disabled:bg-slate-100"
+                  />
+                  {isAdmin && (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => kopInputRef.current?.click()}
+                        className="inline-flex items-center gap-1.5 px-3 py-2 rounded-md bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-bold border border-blue-200 shrink-0 cursor-pointer shadow-2xs"
+                        title="Upload gambar Kop Surat Sekolah (PNG, JPG, WEBP)"
+                      >
+                        <Upload className="w-3.5 h-3.5" />
+                        <span>Upload Kop</span>
+                      </button>
+                      {formData.kop_skl_url && (
+                        <button
+                          type="button"
+                          onClick={() => setFormData({ ...formData, kop_skl_url: '' })}
+                          className="inline-flex items-center gap-1 px-2.5 py-2 rounded-md bg-red-50 hover:bg-red-100 text-red-700 text-xs font-bold border border-red-200 shrink-0 cursor-pointer shadow-2xs"
+                          title="Hapus gambar Kop Sekolah"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                    </>
+                  )}
+                </div>
+                {formData.kop_skl_url && (
+                  <div className="p-2.5 border border-emerald-200 bg-emerald-50/50 rounded-lg">
+                    <p className="text-[10px] font-bold text-emerald-800 mb-1.5 flex items-center gap-1">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> Pratinjau Kop Surat Sekolah Aktif:
+                    </p>
+                    <div className="bg-white rounded border border-slate-200 p-2 flex items-center justify-center">
+                      <img
+                        src={formData.kop_skl_url}
+                        alt="Pratinjau Kop Sekolah"
+                        className="max-h-24 w-auto object-contain"
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
