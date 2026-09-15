@@ -165,6 +165,21 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setLastBackup(storage.getLastBackupDate());
   }, []);
 
+  // Initial sync with persistent server database (across accounts & devices)
+  useEffect(() => {
+    storage.syncFromServer().then((serverData) => {
+      if (serverData) {
+        setStudents(serverData.students);
+        setSubjects(serverData.subjects);
+        setGrades(serverData.grades);
+        setSchoolExams(serverData.schoolExams);
+        setSettings(serverData.settings);
+        setRombels(serverData.rombels);
+        setUsers(serverData.users);
+      }
+    });
+  }, []);
+
   const calculateGradeScore = useCallback(
     (nilai: number | null, tulisFallback?: number | null) => {
       if (nilai === null && (tulisFallback === undefined || tulisFallback === null)) {
@@ -608,7 +623,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const resetDatabase = () => {
     storage.resetAllData();
     refreshAll();
-    addToast('info', 'Database telah direset ke data awal contoh sekolah.');
+    addToast('info', 'Data siswa dan nilai telah dikosongkan dan disinkronkan ke server.');
   };
 
   return (

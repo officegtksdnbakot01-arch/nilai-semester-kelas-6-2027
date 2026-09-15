@@ -157,46 +157,72 @@ export const ExcelManagerView: React.FC = () => {
           </p>
         </div>
 
-        {/* Tab switcher */}
-        <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-lg border border-slate-200/80">
-          <button
-            onClick={() => {
-              setActiveTab('import');
-              setImportResult(null);
-            }}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold transition-all cursor-pointer ${
-              activeTab === 'import'
-                ? 'bg-white text-blue-700 shadow-2xs'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            <Upload className="w-3.5 h-3.5" />
-            <span>Import Data</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('export')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold transition-all cursor-pointer ${
-              activeTab === 'export'
-                ? 'bg-white text-emerald-700 shadow-2xs'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
+        {/* Right side actions */}
+        <div className="flex flex-wrap items-center gap-2">
+          <a
+            href="/api/download-master-excel"
+            download
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold bg-emerald-700 hover:bg-emerald-800 text-white shadow-xs transition-colors"
+            title="Unduh seluruh data siswa, nilai rapor semua semester, dan ujian sekolah dalam satu berkas Master Excel"
           >
             <Download className="w-3.5 h-3.5" />
-            <span>Export Data</span>
-          </button>
+            <span>Unduh Master Excel</span>
+          </a>
 
-          <button
-            onClick={() => setActiveTab('template')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold transition-all cursor-pointer ${
-              activeTab === 'template'
-                ? 'bg-white text-purple-700 shadow-2xs'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            <FolderDown className="w-3.5 h-3.5" />
-            <span>Unduh Template</span>
-          </button>
+          {/* Tab switcher */}
+          <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-lg border border-slate-200/80">
+            <button
+              onClick={() => {
+                setActiveTab('import');
+                setImportResult(null);
+              }}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold transition-all cursor-pointer ${
+                activeTab === 'import'
+                  ? 'bg-white text-blue-700 shadow-2xs'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <Upload className="w-3.5 h-3.5" />
+              <span>Import Data</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('export')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold transition-all cursor-pointer ${
+                activeTab === 'export'
+                  ? 'bg-white text-emerald-700 shadow-2xs'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <Download className="w-3.5 h-3.5" />
+              <span>Export Data</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('template')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold transition-all cursor-pointer ${
+                activeTab === 'template'
+                  ? 'bg-white text-purple-700 shadow-2xs'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <FolderDown className="w-3.5 h-3.5" />
+              <span>Unduh Template</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Permanent Storage & Excel Sync Notice */}
+      <div className="bg-gradient-to-r from-blue-50/80 to-indigo-50/80 border border-blue-200/80 rounded-xl p-4 flex items-start gap-3 text-xs text-blue-900 shadow-2xs">
+        <CheckCircle2 className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
+        <div className="space-y-1">
+          <div className="font-bold text-blue-950">
+            Penyimpanan Permanen & Format Excel Aktif
+          </div>
+          <p className="text-blue-800 leading-relaxed">
+            Semua input nama siswa dan nilai dari form maupun impor Excel tersimpan secara permanen di server dan disinkronkan ke format Excel. Data Anda aman dan dapat diakses bersama tanpa hilang saat dibuka oleh pengguna lain, di perangkat berbeda, ataupun di akun Google lainnya.
+          </p>
         </div>
       </div>
 

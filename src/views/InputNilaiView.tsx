@@ -677,7 +677,7 @@ export const InputNilaiView: React.FC = () => {
           <div className="flex items-center gap-2">
             <Layers className="w-4 h-4 text-blue-600" />
             <span className="text-xs font-bold text-slate-700 uppercase tracking-wide">
-              Pilih Semester (Dibuatkan Masing-Masing Per Semester dari Semester 1 - Kelas 4 dan Seterusnya):
+              Pilih Semester
             </span>
           </div>
           <span className="text-[11px] font-bold text-blue-700 bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-200/60">

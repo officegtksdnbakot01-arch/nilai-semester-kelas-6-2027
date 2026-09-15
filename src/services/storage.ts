@@ -207,119 +207,19 @@ const LAST_NAMES = [
 ];
 
 export function generateSampleStudents(): Student[] {
-  const students: Student[] = [];
-  const rombels = ['6A', '6B', '6C', '6D'];
-  let globalIndex = 1;
-
-  rombels.forEach((rombel) => {
-    const kelas = '6';
-    for (let i = 1; i <= 32; i++) {
-      const isFemale = i % 2 === 0;
-      const firstName = FIRST_NAMES[(i * 3 + rombel.charCodeAt(1)) % FIRST_NAMES.length];
-      const lastName = LAST_NAMES[(i * 5 + rombel.charCodeAt(1)) % LAST_NAMES.length];
-      const nama = `${firstName} ${lastName} (Contoh)`;
-      const nis = `212204${String(globalIndex).padStart(3, '0')}`;
-      const nisn = `014${String(globalIndex).padStart(7, '0')}`;
-      const day = String((i % 28) + 1).padStart(2, '0');
-      const month = String((i % 12) + 1).padStart(2, '0');
-      
-      students.push({
-        id: `std_${rombel.toLowerCase()}_${String(i).padStart(2, '0')}`,
-        nis,
-        nisn,
-        nama,
-        jenis_kelamin: isFemale ? 'P' : 'L',
-        tempat_lahir: 'Bekasi',
-        tanggal_lahir: `2014-${month}-${day}`,
-        orang_tua: `Bpk. ${lastName} & Ibu`,
-        kelas,
-        rombel,
-        status: 'Aktif',
-        alamat: `Jl. Raya Babelan Kota RT 0${(i % 5) + 1}/RW 02, Kec. Babelan`,
-      });
-      globalIndex++;
-    }
-  });
-
-  return students;
+  // Sesuai instruksi: Data siswa bawaan dikosongkan agar dimulai dalam keadaan bersih
+  return [];
 }
 
-export function generateSampleGrades(students: Student[], subjects: Subject[]): { grades: Grade[], exams: SchoolExam[] } {
-  const grades: Grade[] = [];
-  const exams: SchoolExam[] = [];
-
-  const semesters: { code: SemesterCode; kelas: '4' | '5' | '6' }[] = [
-    { code: 'Smt1_Kls4', kelas: '4' },
-    { code: 'Smt2_Kls4', kelas: '4' },
-    { code: 'Smt1_Kls5', kelas: '5' },
-    { code: 'Smt2_Kls5', kelas: '5' },
-    { code: 'Smt1_Kls6', kelas: '6' },
-    { code: 'Smt2_Kls6', kelas: '6' },
-  ];
-
-  // Seed sample grades for 6A & 6B students across history
-  const class6Students = students.filter(s => s.kelas === '6');
-
-  class6Students.forEach((std, sIndex) => {
-    subjects.forEach((subj, subIndex) => {
-      // Generate historical grades for Smt1_Kls4 up to Smt1_Kls6
-      semesters.forEach((sem, semIdx) => {
-        // Pseudo-random deterministic realistic score between 75 and 96
-        const base = 78 + ((sIndex * 7 + subIndex * 11 + semIdx * 5) % 18);
-        const pMod = ((sIndex + subIndex) % 5) - 2;
-        const tMod = ((sIndex * 3 + subIndex) % 5) - 2;
-        const praktik = Math.min(100, Math.max(70, base + pMod));
-        const tulis = Math.min(100, Math.max(70, base + tMod));
-        const akhir = Math.round((praktik + tulis) / 2);
-
-        let predikat: 'A' | 'B' | 'C' | 'D' = 'B';
-        if (akhir >= 90) predikat = 'A';
-        else if (akhir >= 80) predikat = 'B';
-        else if (akhir >= 70) predikat = 'C';
-        else predikat = 'D';
-
-        grades.push({
-          id: `grd_${std.id}_${subj.id}_${sem.code}`,
-          student_id: std.id,
-          subject_id: subj.id,
-          kelas: sem.kelas,
-          rombel: std.rombel,
-          semester: sem.code,
-          tahun_ajaran: sem.kelas === '4' ? '2024/2025' : (sem.kelas === '5' ? '2025/2026' : '2026/2027'),
-          nilai_praktik: praktik,
-          nilai_tulis: tulis,
-          nilai_akhir: akhir,
-          predikat,
-          catatan: akhir >= 85 ? 'Menunjukkan penguasaan capaian pembelajaran yang sangat baik.' : 'Menunjukkan capaian pembelajaran yang baik dan tuntas.',
-          updated_at: new Date().toISOString(),
-        });
-      });
-
-      // School Exam (Ujian Sekolah) for Class 6
-      const usPraktik = 80 + ((sIndex * 3 + subIndex * 2) % 17);
-      const usTulis = 79 + ((sIndex * 5 + subIndex * 3) % 18);
-      const usAkhir = Math.round((usPraktik * 0.4) + (usTulis * 0.6));
-
-      exams.push({
-        id: `exam_${std.id}_${subj.id}`,
-        student_id: std.id,
-        subject_id: subj.id,
-        nilai_praktik: usPraktik,
-        nilai_tulis: usTulis,
-        nilai: usAkhir,
-        tahun_ajaran: '2026/2027',
-        catatan: 'Lulus dengan kriteria ketercapaian memuaskan.',
-        updated_at: new Date().toISOString(),
-      });
-    });
-  });
-
-  return { grades, exams };
+export function generateSampleGrades(_students: Student[], _subjects: Subject[]): { grades: Grade[], exams: SchoolExam[] } {
+  // Sesuai instruksi: Data nilai bawaan dikosongkan
+  return { grades: [], exams: [] };
 }
 
 // Storage Manager
 export class StorageService {
   private static instance: StorageService;
+  private syncTimeout: any = null;
 
   private constructor() {
     this.initIfEmpty();
@@ -332,6 +232,97 @@ export class StorageService {
     return StorageService.instance;
   }
 
+  public scheduleServerSync(): void {
+    if (typeof window === 'undefined') return;
+    if (this.syncTimeout) clearTimeout(this.syncTimeout);
+    this.syncTimeout = setTimeout(() => {
+      this.syncToServer();
+    }, 400);
+  }
+
+  public async syncToServer(): Promise<boolean> {
+    if (typeof window === 'undefined') return false;
+    try {
+      const payload = {
+        students: this.getStudents(),
+        grades: this.getGrades(),
+        schoolExams: this.getSchoolExams(),
+        settings: this.getSettings(),
+        rombels: this.getRombels(),
+        users: this.getUsers(),
+        subjects: this.getSubjects(),
+      };
+
+      const res = await fetch('/api/database', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      return res.ok;
+    } catch (err) {
+      // Server might be starting or running in client-only preview
+      return false;
+    }
+  }
+
+  public async syncFromServer(): Promise<{
+    students: Student[];
+    grades: Grade[];
+    schoolExams: SchoolExam[];
+    settings: SchoolSettings;
+    rombels: RombelInfo[];
+    users: User[];
+    subjects: Subject[];
+  } | null> {
+    if (typeof window === 'undefined') return null;
+    try {
+      const res = await fetch('/api/database');
+      if (!res.ok) return null;
+      const data = await res.json();
+      if (data && typeof data === 'object') {
+        // Filter out any legacy dummy sample students
+        const cleanStudents: Student[] = Array.isArray(data.students)
+          ? data.students.filter(
+              (s: Student) =>
+                !s.nama?.includes('(Contoh)') &&
+                !s.id?.startsWith('std_6a_') &&
+                !s.id?.startsWith('std_6b_')
+            )
+          : [];
+
+        const validIds = new Set(cleanStudents.map((s) => s.id));
+        const cleanGrades: Grade[] = Array.isArray(data.grades)
+          ? data.grades.filter((g: Grade) => validIds.has(g.student_id))
+          : [];
+        const cleanExams: SchoolExam[] = Array.isArray(data.schoolExams)
+          ? data.schoolExams.filter((e: SchoolExam) => validIds.has(e.student_id))
+          : [];
+
+        localStorage.setItem(STORAGE_KEYS.STUDENTS, JSON.stringify(cleanStudents));
+        localStorage.setItem(STORAGE_KEYS.GRADES, JSON.stringify(cleanGrades));
+        localStorage.setItem(STORAGE_KEYS.SCHOOL_EXAM, JSON.stringify(cleanExams));
+        if (data.settings) localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(data.settings));
+        if (data.rombels) localStorage.setItem(STORAGE_KEYS.ROMBELS, JSON.stringify(data.rombels));
+        if (data.users) localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(data.users));
+        if (data.subjects) localStorage.setItem(STORAGE_KEYS.SUBJECTS, JSON.stringify(data.subjects));
+
+        return {
+          students: cleanStudents,
+          grades: cleanGrades,
+          schoolExams: cleanExams,
+          settings: data.settings || this.getSettings(),
+          rombels: data.rombels || this.getRombels(),
+          users: data.users || this.getUsers(),
+          subjects: data.subjects || this.getSubjects(),
+        };
+      }
+    } catch {
+      // Ignored if offline
+    }
+    return null;
+  }
+
   public initIfEmpty(forceReset: boolean = false): void {
     if (typeof window === 'undefined') return;
 
@@ -342,13 +333,52 @@ export class StorageService {
       localStorage.setItem(STORAGE_KEYS.SUBJECTS, JSON.stringify(INITIAL_SUBJECTS));
       localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(INITIAL_SETTINGS));
 
-      const sampleStudents = generateSampleStudents();
-      localStorage.setItem(STORAGE_KEYS.STUDENTS, JSON.stringify(sampleStudents));
-
-      const { grades, exams } = generateSampleGrades(sampleStudents, INITIAL_SUBJECTS);
-      localStorage.setItem(STORAGE_KEYS.GRADES, JSON.stringify(grades));
-      localStorage.setItem(STORAGE_KEYS.SCHOOL_EXAM, JSON.stringify(exams));
+      // Dikosongkan sesuai permintaan
+      localStorage.setItem(STORAGE_KEYS.STUDENTS, JSON.stringify([]));
+      localStorage.setItem(STORAGE_KEYS.GRADES, JSON.stringify([]));
+      localStorage.setItem(STORAGE_KEYS.SCHOOL_EXAM, JSON.stringify([]));
       localStorage.setItem(STORAGE_KEYS.LAST_BACKUP, new Date().toISOString());
+    } else {
+      // Periksa apakah data lama di browser masih menyimpan data dummy "(Contoh)"
+      const rawStudents = localStorage.getItem(STORAGE_KEYS.STUDENTS);
+      if (rawStudents) {
+        try {
+          const list: Student[] = JSON.parse(rawStudents);
+          const hasDummy = list.some(
+            (s) => s.nama?.includes('(Contoh)') || s.id?.startsWith('std_6a_') || s.id?.startsWith('std_6b_')
+          );
+          if (hasDummy) {
+            const cleanStudents = list.filter(
+              (s) => !s.nama?.includes('(Contoh)') && !s.id?.startsWith('std_6a_') && !s.id?.startsWith('std_6b_')
+            );
+            localStorage.setItem(STORAGE_KEYS.STUDENTS, JSON.stringify(cleanStudents));
+            if (cleanStudents.length === 0) {
+              localStorage.setItem(STORAGE_KEYS.GRADES, JSON.stringify([]));
+              localStorage.setItem(STORAGE_KEYS.SCHOOL_EXAM, JSON.stringify([]));
+            } else {
+              const validIds = new Set(cleanStudents.map((s) => s.id));
+              const rawG = localStorage.getItem(STORAGE_KEYS.GRADES);
+              if (rawG) {
+                const gList: Grade[] = JSON.parse(rawG);
+                localStorage.setItem(
+                  STORAGE_KEYS.GRADES,
+                  JSON.stringify(gList.filter((g) => validIds.has(g.student_id)))
+                );
+              }
+              const rawE = localStorage.getItem(STORAGE_KEYS.SCHOOL_EXAM);
+              if (rawE) {
+                const eList: SchoolExam[] = JSON.parse(rawE);
+                localStorage.setItem(
+                  STORAGE_KEYS.SCHOOL_EXAM,
+                  JSON.stringify(eList.filter((e) => validIds.has(e.student_id)))
+                );
+              }
+            }
+          }
+        } catch {
+          // ignore
+        }
+      }
     }
   }
 
@@ -379,6 +409,7 @@ export class StorageService {
 
   public saveUsers(users: User[]): void {
     localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users));
+    this.scheduleServerSync();
   }
 
   // Current User Session
@@ -415,7 +446,13 @@ export class StorageService {
     try {
       const list: Student[] = JSON.parse(raw);
       const allowedRombels = ['6A', '6B', '6C', '6D'];
-      const filtered = list.filter((s) => allowedRombels.includes(s.rombel));
+      const filtered = list.filter(
+        (s) =>
+          allowedRombels.includes(s.rombel) &&
+          !s.nama?.includes('(Contoh)') &&
+          !s.id?.startsWith('std_6a_') &&
+          !s.id?.startsWith('std_6b_')
+      );
       if (filtered.length !== list.length) {
         this.saveStudents(filtered);
       }
@@ -427,6 +464,7 @@ export class StorageService {
 
   public saveStudents(students: Student[]): void {
     localStorage.setItem(STORAGE_KEYS.STUDENTS, JSON.stringify(students));
+    this.scheduleServerSync();
   }
 
   // Rombels (Strictly 6A, 6B, 6C, 6D)
@@ -454,6 +492,7 @@ export class StorageService {
 
   public saveRombels(rombels: RombelInfo[]): void {
     localStorage.setItem(STORAGE_KEYS.ROMBELS, JSON.stringify(rombels));
+    this.scheduleServerSync();
   }
 
   // Subjects
@@ -464,6 +503,7 @@ export class StorageService {
 
   public saveSubjects(subjects: Subject[]): void {
     localStorage.setItem(STORAGE_KEYS.SUBJECTS, JSON.stringify(subjects));
+    this.scheduleServerSync();
   }
 
   // Grades
@@ -474,6 +514,7 @@ export class StorageService {
 
   public saveGrades(grades: Grade[]): void {
     localStorage.setItem(STORAGE_KEYS.GRADES, JSON.stringify(grades));
+    this.scheduleServerSync();
   }
 
   public upsertGrade(grade: Grade): void {
@@ -501,6 +542,7 @@ export class StorageService {
 
   public saveSchoolExams(exams: SchoolExam[]): void {
     localStorage.setItem(STORAGE_KEYS.SCHOOL_EXAM, JSON.stringify(exams));
+    this.scheduleServerSync();
   }
 
   public upsertSchoolExam(exam: SchoolExam): void {
@@ -542,6 +584,7 @@ export class StorageService {
 
   public saveSettings(settings: SchoolSettings): void {
     localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(settings));
+    this.scheduleServerSync();
   }
 
   // Full Database Backup & Restore
@@ -592,6 +635,10 @@ export class StorageService {
 
   public resetAllData(): void {
     this.initIfEmpty(true);
+    this.scheduleServerSync();
+    try {
+      fetch('/api/reset-database', { method: 'POST' }).catch(() => {});
+    } catch {}
   }
 
   public static exportBackupJson(): string {
