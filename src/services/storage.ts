@@ -35,57 +35,93 @@ export const INITIAL_SETTINGS: SchoolSettings = {
 };
 
 export const INITIAL_ROMBELS: RombelInfo[] = [
-  // Hanya Kelas 6: 6A, 6B, 6C, 6D
-  { id: 'rombel_6a', nama: '6A', kelas: '6', wali_kelas: 'Siti Rahmawati, S.Pd.', nip_wali_kelas: '19790415 200501 2 008', kapasitas: 32, ruangan: 'Gedung C R.01' },
-  { id: 'rombel_6b', nama: '6B', kelas: '6', wali_kelas: 'Bambang Sudarsono, S.Pd.SD', nip_wali_kelas: '19810822 200701 1 010', kapasitas: 32, ruangan: 'Gedung C R.02' },
-  { id: 'rombel_6c', nama: '6C', kelas: '6', wali_kelas: 'Dewi Lestari, S.Pd.', nip_wali_kelas: '19831203 200903 2 007', kapasitas: 32, ruangan: 'Gedung C R.03' },
-  { id: 'rombel_6d', nama: '6D', kelas: '6', wali_kelas: 'Ahmad Fauzi, S.Pd.I', nip_wali_kelas: '19860517 201101 1 009', kapasitas: 32, ruangan: 'Gedung C R.04' },
+  // Hanya Jenjang Kelas 6: 6A, 6B, 6C, 6D (Data Paten Resmi SDN Babelan Kota 01)
+  {
+    id: 'rombel_6a',
+    nama: '6A',
+    kelas: '6',
+    wali_kelas: 'Ngatimah, S.Pd',
+    nip_wali_kelas: '197212172014082001',
+    nip_wali: '197212172014082001',
+    kapasitas: 32,
+    ruangan: 'Kelas 6A',
+  },
+  {
+    id: 'rombel_6b',
+    nama: '6B',
+    kelas: '6',
+    wali_kelas: 'Rahmat Hidayattulloh, S.Pd',
+    nip_wali_kelas: '197808182008011004',
+    nip_wali: '197808182008011004',
+    kapasitas: 32,
+    ruangan: 'Kelas 6B',
+  },
+  {
+    id: 'rombel_6c',
+    nama: '6C',
+    kelas: '6',
+    wali_kelas: 'Esin Riawati, S.Pd',
+    nip_wali_kelas: '198607262009022001',
+    nip_wali: '198607262009022001',
+    kapasitas: 32,
+    ruangan: 'Kelas 6C',
+  },
+  {
+    id: 'rombel_6d',
+    nama: '6D',
+    kelas: '6',
+    wali_kelas: 'Didi Mulyadi, S.Pd',
+    nip_wali_kelas: '198911062025211012',
+    nip_wali: '198911062025211012',
+    kapasitas: 32,
+    ruangan: 'Kelas 6D',
+  },
 ];
 
 export const INITIAL_USERS: User[] = [
   {
     id: 'user_admin',
-    nama: 'Administrator Kurikulum & Penilaian',
+    nama: 'Samsudin',
     username: 'admin',
     password: 'password123',
     role: 'admin',
-    nip: '19750912 200003 1 002',
+    nip: '198105102025211008',
   },
   {
     id: 'user_guru_6a',
-    nama: 'Siti Rahmawati, S.Pd. (Guru Kelas 6A)',
+    nama: 'Ngatimah, S.Pd (Guru Kelas 6A)',
     username: 'guru6a',
     password: 'password123',
     role: 'guru',
     rombel: '6A',
-    nip: '19790415 200501 2 008',
+    nip: '197212172014082001',
   },
   {
     id: 'user_guru_6b',
-    nama: 'Bambang Sudarsono, S.Pd.SD (Guru Kelas 6B)',
+    nama: 'Rahmat Hidayattulloh, S.Pd (Guru Kelas 6B)',
     username: 'guru6b',
     password: 'password123',
     role: 'guru',
     rombel: '6B',
-    nip: '19810822 200701 1 010',
+    nip: '197808182008011004',
   },
   {
     id: 'user_guru_6c',
-    nama: 'Dewi Lestari, S.Pd. (Guru Kelas 6C)',
+    nama: 'Esin Riawati, S.Pd (Guru Kelas 6C)',
     username: 'guru6c',
     password: 'password123',
     role: 'guru',
     rombel: '6C',
-    nip: '19831203 200903 2 007',
+    nip: '198607262009022001',
   },
   {
     id: 'user_guru_6d',
-    nama: 'Ahmad Fauzi, S.Pd.I (Guru Kelas 6D)',
+    nama: 'Didi Mulyadi, S.Pd (Guru Kelas 6D)',
     username: 'guru6d',
     password: 'password123',
     role: 'guru',
     rombel: '6D',
-    nip: '19860517 201101 1 009',
+    nip: '198911062025211012',
   },
 ];
 
@@ -387,21 +423,37 @@ export class StorageService {
     const raw = localStorage.getItem(STORAGE_KEYS.USERS);
     let list: User[] = raw ? JSON.parse(raw) : INITIAL_USERS;
     const allowedRombels = ['6A', '6B', '6C', '6D'];
-    
+    const legacyDummies = ['Siti Rahmawati', 'Bambang Sudarsono', 'Dewi Lestari', 'Ahmad Fauzi', 'Administrator Kurikulum'];
+    let needsSave = false;
+
     // Keep only Administrator and teachers assigned to 6A, 6B, 6C, 6D
     let filtered = list.filter(
       (u) => u.role === 'admin' || (u.rombel && allowedRombels.includes(u.rombel))
     );
+
+    // Replace any legacy dummy users with the permanent patented users
+    filtered = filtered.map((u) => {
+      const isLegacy = legacyDummies.some((name) => u.nama?.includes(name));
+      const patented = INITIAL_USERS.find(
+        (initU) => (u.role === 'admin' && initU.role === 'admin') || (u.rombel && initU.rombel === u.rombel)
+      );
+      if (isLegacy && patented) {
+        needsSave = true;
+        return { ...patented, password: u.password || patented.password };
+      }
+      return u;
+    });
 
     // Ensure all initial users are present
     INITIAL_USERS.forEach((initU) => {
       const idx = filtered.findIndex((u) => u.id === initU.id || (u.role === 'guru' && u.rombel === initU.rombel));
       if (idx === -1) {
         filtered.push(initU);
+        needsSave = true;
       }
     });
 
-    if (raw && filtered.length !== list.length) {
+    if (needsSave || (raw && filtered.length !== list.length)) {
       this.saveUsers(filtered);
     }
     return filtered;
@@ -424,6 +476,20 @@ export class StorageService {
         const adminUser = this.getUsers().find((u) => u.role === 'admin') || INITIAL_USERS[0];
         this.setCurrentUser(adminUser);
         return adminUser;
+      }
+      // If active user still has legacy dummy name, refresh to patented user
+      if (
+        user.nama?.includes('Siti Rahmawati') ||
+        user.nama?.includes('Bambang Sudarsono') ||
+        user.nama?.includes('Dewi Lestari') ||
+        user.nama?.includes('Ahmad Fauzi') ||
+        user.nama?.includes('Administrator Kurikulum')
+      ) {
+        const freshUser = this.getUsers().find((u) => u.id === user.id || u.username === user.username);
+        if (freshUser) {
+          this.setCurrentUser(freshUser);
+          return freshUser;
+        }
       }
       return user;
     } catch {
@@ -472,19 +538,33 @@ export class StorageService {
     const raw = localStorage.getItem(STORAGE_KEYS.ROMBELS);
     let list: RombelInfo[] = raw ? JSON.parse(raw) : INITIAL_ROMBELS;
     const allowedNames = ['6A', '6B', '6C', '6D'];
+    const legacyDummies = ['Siti Rahmawati', 'Bambang Sudarsono', 'Dewi Lestari', 'Ahmad Fauzi'];
+    let needsSave = false;
 
     let filtered = list.filter((r) => allowedNames.includes(r.nama));
+
+    // Replace any legacy dummy teachers with permanent patented teachers
+    filtered = filtered.map((r) => {
+      const isLegacyDummy = legacyDummies.some((name) => r.wali_kelas?.includes(name));
+      const patented = INITIAL_ROMBELS.find((initR) => initR.nama === r.nama);
+      if (isLegacyDummy && patented) {
+        needsSave = true;
+        return { ...patented };
+      }
+      return r;
+    });
 
     // Ensure all 4 rombels exist
     INITIAL_ROMBELS.forEach((initR) => {
       if (!filtered.some((r) => r.nama === initR.nama)) {
         filtered.push(initR);
+        needsSave = true;
       }
     });
 
     filtered.sort((a, b) => a.nama.localeCompare(b.nama));
 
-    if (raw && filtered.length !== list.length) {
+    if (needsSave || (raw && filtered.length !== list.length)) {
       this.saveRombels(filtered);
     }
     return filtered;

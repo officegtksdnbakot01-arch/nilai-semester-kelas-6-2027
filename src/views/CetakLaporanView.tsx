@@ -1010,9 +1010,9 @@ export const CetakLaporanView: React.FC = () => {
               <p className="font-bold">Guru Kelas 6 / Ketua Panitia Ujian Sekolah</p>
               <div className="h-20"></div>
               <p className="font-bold underline uppercase">
-                {currentRombelInfo?.wali_kelas || currentUser?.nama || 'Siti Rahmawati, S.Pd.'}
+                {currentRombelInfo?.wali_kelas || currentUser?.nama || 'Ngatimah, S.Pd'}
               </p>
-              <p>NIP. {currentRombelInfo?.nip_wali_kelas || currentRombelInfo?.nip_wali || currentUser?.nip || '19790415 200501 2 008'}</p>
+              <p>NIP. {currentRombelInfo?.nip_wali_kelas || currentRombelInfo?.nip_wali || currentUser?.nip || '197212172014082001'}</p>
             </div>
           </div>
         </div>

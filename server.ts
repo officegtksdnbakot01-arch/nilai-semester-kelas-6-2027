@@ -38,18 +38,93 @@ const INITIAL_SETTINGS = {
 };
 
 const INITIAL_ROMBELS = [
-  { id: 'rombel_6a', nama: '6A', kelas: '6', wali_kelas: 'Siti Rahmawati, S.Pd.', nip_wali_kelas: '19790415 200501 2 008', kapasitas: 32, ruangan: 'Gedung C R.01' },
-  { id: 'rombel_6b', nama: '6B', kelas: '6', wali_kelas: 'Bambang Sudarsono, S.Pd.SD', nip_wali_kelas: '19810822 200701 1 010', kapasitas: 32, ruangan: 'Gedung C R.02' },
-  { id: 'rombel_6c', nama: '6C', kelas: '6', wali_kelas: 'Dewi Lestari, S.Pd.', nip_wali_kelas: '19831203 200903 2 007', kapasitas: 32, ruangan: 'Gedung C R.03' },
-  { id: 'rombel_6d', nama: '6D', kelas: '6', wali_kelas: 'Ahmad Fauzi, S.Pd.I', nip_wali_kelas: '19860517 201101 1 009', kapasitas: 32, ruangan: 'Gedung C R.04' },
+  {
+    id: 'rombel_6a',
+    nama: '6A',
+    kelas: '6',
+    wali_kelas: 'Ngatimah, S.Pd',
+    nip_wali_kelas: '197212172014082001',
+    nip_wali: '197212172014082001',
+    kapasitas: 32,
+    ruangan: 'Kelas 6A',
+  },
+  {
+    id: 'rombel_6b',
+    nama: '6B',
+    kelas: '6',
+    wali_kelas: 'Rahmat Hidayattulloh, S.Pd',
+    nip_wali_kelas: '197808182008011004',
+    nip_wali: '197808182008011004',
+    kapasitas: 32,
+    ruangan: 'Kelas 6B',
+  },
+  {
+    id: 'rombel_6c',
+    nama: '6C',
+    kelas: '6',
+    wali_kelas: 'Esin Riawati, S.Pd',
+    nip_wali_kelas: '198607262009022001',
+    nip_wali: '198607262009022001',
+    kapasitas: 32,
+    ruangan: 'Kelas 6C',
+  },
+  {
+    id: 'rombel_6d',
+    nama: '6D',
+    kelas: '6',
+    wali_kelas: 'Didi Mulyadi, S.Pd',
+    nip_wali_kelas: '198911062025211012',
+    nip_wali: '198911062025211012',
+    kapasitas: 32,
+    ruangan: 'Kelas 6D',
+  },
 ];
 
 const INITIAL_USERS = [
-  { id: 'user_admin', nama: 'Administrator Kurikulum & Penilaian', username: 'admin', password: 'password123', role: 'admin', nip: '19750912 200003 1 002' },
-  { id: 'user_guru_6a', nama: 'Siti Rahmawati, S.Pd. (Guru Kelas 6A)', username: 'guru6a', password: 'password123', role: 'guru', rombel: '6A', nip: '19790415 200501 2 008' },
-  { id: 'user_guru_6b', nama: 'Bambang Sudarsono, S.Pd.SD (Guru Kelas 6B)', username: 'guru6b', password: 'password123', role: 'guru', rombel: '6B', nip: '19810822 200701 1 010' },
-  { id: 'user_guru_6c', nama: 'Dewi Lestari, S.Pd. (Guru Kelas 6C)', username: 'guru6c', password: 'password123', role: 'guru', rombel: '6C', nip: '19831203 200903 2 007' },
-  { id: 'user_guru_6d', nama: 'Ahmad Fauzi, S.Pd.I (Guru Kelas 6D)', username: 'guru6d', password: 'password123', role: 'guru', rombel: '6D', nip: '19860517 201101 1 009' },
+  {
+    id: 'user_admin',
+    nama: 'Samsudin',
+    username: 'admin',
+    password: 'password123',
+    role: 'admin',
+    nip: '198105102025211008',
+  },
+  {
+    id: 'user_guru_6a',
+    nama: 'Ngatimah, S.Pd (Guru Kelas 6A)',
+    username: 'guru6a',
+    password: 'password123',
+    role: 'guru',
+    rombel: '6A',
+    nip: '197212172014082001',
+  },
+  {
+    id: 'user_guru_6b',
+    nama: 'Rahmat Hidayattulloh, S.Pd (Guru Kelas 6B)',
+    username: 'guru6b',
+    password: 'password123',
+    role: 'guru',
+    rombel: '6B',
+    nip: '197808182008011004',
+  },
+  {
+    id: 'user_guru_6c',
+    nama: 'Esin Riawati, S.Pd (Guru Kelas 6C)',
+    username: 'guru6c',
+    password: 'password123',
+    role: 'guru',
+    rombel: '6C',
+    nip: '198607262009022001',
+  },
+  {
+    id: 'user_guru_6d',
+    nama: 'Didi Mulyadi, S.Pd (Guru Kelas 6D)',
+    username: 'guru6d',
+    password: 'password123',
+    role: 'guru',
+    rombel: '6D',
+    nip: '198911062025211012',
+  },
 ];
 
 const INITIAL_SUBJECTS = [
@@ -109,6 +184,40 @@ function loadDatabase(): DatabaseModel {
           }
           fs.writeFileSync(DB_FILE, JSON.stringify(parsed, null, 2), 'utf-8');
         }
+      }
+
+      // Ensure rombels & users are using the permanent patented teachers
+      const legacyDummies = ['Siti Rahmawati', 'Bambang Sudarsono', 'Dewi Lestari', 'Ahmad Fauzi', 'Administrator Kurikulum'];
+      let dbUpdated = false;
+
+      if (Array.isArray(parsed.rombels)) {
+        parsed.rombels = parsed.rombels.map((r: any) => {
+          const isLegacy = legacyDummies.some((d) => r.wali_kelas?.includes(d));
+          const patented = INITIAL_ROMBELS.find((ir) => ir.nama === r.nama);
+          if (isLegacy && patented) {
+            dbUpdated = true;
+            return { ...patented };
+          }
+          return r;
+        });
+      }
+
+      if (Array.isArray(parsed.users)) {
+        parsed.users = parsed.users.map((u: any) => {
+          const isLegacy = legacyDummies.some((d) => u.nama?.includes(d));
+          const patented = INITIAL_USERS.find(
+            (iu) => (u.role === 'admin' && iu.role === 'admin') || (u.rombel && iu.rombel === u.rombel)
+          );
+          if (isLegacy && patented) {
+            dbUpdated = true;
+            return { ...patented, password: u.password || patented.password };
+          }
+          return u;
+        });
+      }
+
+      if (dbUpdated) {
+        fs.writeFileSync(DB_FILE, JSON.stringify(parsed, null, 2), 'utf-8');
       }
       return {
         ...getInitialDatabase(),

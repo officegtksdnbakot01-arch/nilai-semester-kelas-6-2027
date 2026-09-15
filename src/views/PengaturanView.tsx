@@ -520,9 +520,15 @@ export const PengaturanView: React.FC = () => {
               Struktur Rombongan Belajar (Rombel) & Wali Kelas 6
             </h3>
           </div>
-          <span className="text-[11px] font-semibold text-blue-700 bg-blue-50 px-2.5 py-0.5 rounded-md border border-blue-200/60">
-            Hanya Jenjang Kelas 6 (6A, 6B, 6C, 6D)
-          </span>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-md border border-emerald-200/60 flex items-center gap-1">
+              <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+              Data Guru Paten Permanen
+            </span>
+            <span className="text-[11px] font-semibold text-blue-700 bg-blue-50 px-2.5 py-0.5 rounded-md border border-blue-200/60">
+              Hanya Jenjang Kelas 6 (6A, 6B, 6C, 6D)
+            </span>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
@@ -670,9 +676,9 @@ export const PengaturanView: React.FC = () => {
 
           <div className="p-4 rounded-lg border border-rose-200 bg-rose-50/50 flex flex-col justify-between space-y-3">
             <div>
-              <h4 className="text-xs font-bold text-rose-900">Reset ke Data Awal</h4>
+              <h4 className="text-xs font-bold text-rose-900">Kosongkan Data Siswa & Nilai</h4>
               <p className="text-[11px] text-rose-700/90 mt-1">
-                Kembalikan data contoh awal SDN BABELAN KOTA 01 lengkap dengan siswa dan nilai demonstrasi.
+                Kosongkan data siswa dan nilai untuk tahun ajaran baru. Struktur rombel dan guru kelas 6A–6D tetap dipatenkan secara permanen.
               </p>
             </div>
             <button
@@ -681,7 +687,7 @@ export const PengaturanView: React.FC = () => {
               className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-md bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition-colors cursor-pointer"
             >
               <RotateCcw className="w-3.5 h-3.5" />
-              <span>Reset Data Aplikasi</span>
+              <span>Reset Data Siswa & Nilai</span>
             </button>
           </div>
         </div>
@@ -693,11 +699,11 @@ export const PengaturanView: React.FC = () => {
         onClose={() => setShowResetConfirm(false)}
         onConfirm={() => {
           resetToDefaults();
-          addToast('info', 'Data berhasil diatur ulang ke data bawaan.');
+          addToast('info', 'Data siswa dan nilai berhasil dikosongkan. Struktur rombel & guru kelas tetap dipatenkan.');
         }}
-        title="Konfirmasi Reset Data"
-        message="Apakah Anda yakin ingin mengatur ulang data ke data demonstrasi awal? Semua perubahan data yang belum dicadangkan akan hilang."
-        confirmLabel="Ya, Reset Data"
+        title="Konfirmasi Reset Data Siswa & Nilai"
+        message="Apakah Anda yakin ingin mengosongkan data siswa dan nilai? Data struktur rombel dan guru kelas 6A–6D SDN Babelan Kota 01 tetap dipatenkan permanen."
+        confirmLabel="Ya, Reset Data Siswa"
         isDangerous
       />
 
